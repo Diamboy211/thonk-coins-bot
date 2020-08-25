@@ -1,6 +1,6 @@
 {
   "name": "prototype-thonk-coin-bot",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "discord bot for thonk coin storing",
   "main": "index.js",
   "scripts": {
