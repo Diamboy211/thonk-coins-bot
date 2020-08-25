@@ -25,6 +25,8 @@ Example: ${config.prefix}thonkcoins dep 15
 
 **For whitelisted people:**
 save: Important command, saves database
+set <user-id> <amount>: set user's thonk coin's amount
+setbank <user-id> <amount>: set user's thonk coin's amount in bank
 `
 
 function getThonkCoins(id) {
