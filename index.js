@@ -59,6 +59,7 @@ function bgupdate() {
 			data[i].amount += data[i].bank * 0.05;
 		}
 	}
+	client.sweepMessages(20);
 	fs.writeFile('./data.json', JSON.stringify(data), 'utf8')
 	.then(() => {console.log('saved database')})
 	.catch(() => {console.log('failed to save database')})
