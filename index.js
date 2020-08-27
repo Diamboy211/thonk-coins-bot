@@ -65,6 +65,10 @@ function bgupdate() {
 	.catch(() => {console.log('failed to save database')})
 }
 
+function createEmbed(title, color, description) {
+	return new Discord.MessageEmbed.setTitle(title).setColor(color).setDescription(description);
+}
+
 client.once('ready', () => {
 	console.log('ready');
 });
@@ -77,117 +81,127 @@ client.on('message', message => {
 			case 'thonkcoins': {
 				if (instr[1]) {
 					if (instr[1] == 'bank') {
-						const embed = new Discord.MessageEmbed()
-						.setTitle('Thonk coins bank')
-						.setColor(0xeeea0f)
-						.setDescription(`<@!${message.author.id}> You have ${data[message.author.id].bank.toFixed(2)} thonk coins in the bank`);
-						message.channel.send(embed);
+						message.channel.send(createEmbed(
+							'Thonk coins bank',
+							0xeeea0f,
+							`<@!${message.author.id}> You have ${data[message.author.id].bank.toFixed(2)} thonk coins in the bank`
+						));
 					} else if (instr[1] == 'dep') {
 						if (instr[2]) {
 							if (instr[2] == 'all') {
-								const embed = new Discord.MessageEmbed()
-								.setTitle('Thonk coins bank')
-								.setColor(0xeeea0f)
-								.setDescription(`<@!${message.author.id}> ${depositThonkCoins(message.author.id, data[id].amount)}`);
-								message.channel.send(embed);
+								message.channel.send(createEmbed(
+									'Thonk coins bank',
+									0xeeea0f,
+									`<@!${message.author.id}> ${depositThonkCoins(message.author.id, data[message.author.id].amount)}`
+								));
 							} else if (!isNaN(Number(instr[2]))) {
-								const embed = new Discord.MessageEmbed()
-								.setTitle('Thonk coins bank')
-								.setColor(0xeeea0f)
-								.setDescription(`<@!${message.author.id}> ${depositThonkCoins(message.author.id, Number(instr[2]))}`);
-								message.channel.send(embed);
+								message.channel.send(createEmbed(
+									'Thonk coins bank',
+									0xeeea0f,
+									`<@!${message.author.id}> ${depositThonkCoins(message.author.id, Number(instr[2]))}`
+								));
 							} else {
-								const embed = new Discord.MessageEmbed()
-								.setTitle('Thonk coins bank')
-								.setColor(0xeeea0f)
-								.setDescription(`<@!${message.author.id}> Usage: ${config.prefix}thonkcoins dep [all or number]`);
-								message.channel.send(embed);
+								message.channel.send(createEmbed(
+									'Thonk coins bank',
+									0xeeea0f,
+									`<@!${message.author.id}> Usage: ${config.prefix}thonkcoins dep [all or number]`
+								));
 							}
 						} else {
-							const embed = new Discord.MessageEmbed()
-							.setTitle('Thonk coins bank')
-							.setColor(0xeeea0f)
-							.setDescription(`<@!${message.author.id}> Usage: ${config.prefix}thonkcoins dep [all or number]`);
-							message.channel.send(embed);
+							message.channel.send(createEmbed(
+								'Thonk coins bank',
+								0xeeea0f,
+								`<@!${message.author.id}> Usage: ${config.prefix}thonkcoins dep [all or number]`
+							));
 						}
 					} else {
-						const embed = new Discord.MessageEmbed()
-						.setTitle('Thonk coins')
-						.setColor(0xeeea0f)
-						.setDescription(`<@!${instr[1]}> has ${getThonkCoins(instr[1])} thonk coins`);
-						message.channel.send(embed);
+						message.channel.send(createEmbed(
+							'Thonk coins',
+							0xeeea0f,
+							`<@!${instr[1]}> has ${getThonkCoins(instr[1])} thonk coins`
+						));
 					}
-				} else {
-					const embed = new Discord.MessageEmbed()
-					.setTitle('Thonk coins')
-					.setColor(0xeeea0f)
-					.setDescription(`<@!${message.author.id}> You have ${getThonkCoins(message.author.id)} thonk coins`);
-					message.channel.send(embed);
+				} else {;
+					message.channel.send(createEmbed(
+						'Thonk coins',
+						0xeeea0f,
+						`<@!${message.author.id}> You have ${getThonkCoins(message.author.id)} thonk coins`
+					));
 				}
 				break;
 			}
 			case 'help': {
-				const embed = new Discord.MessageEmbed()
-				.setTitle('Help')
-				.setColor(0xeeea0f)
-				.setDescription(helpText);
-				message.channel.send(embed);
+				message.channel.send(createEmbed(
+					'Help',
+					0xeeea0f,
+					helpText
+				))
 				break;
 			}
 			case 'save': {
 				if (authorized_tc_setters.includes(message.author.id)) {
 					fs.writeFile('./data.json', JSON.stringify(data), 'utf8')
 					.then(() => {
-						const embed = new Discord.MessageEmbed()
-						.setTitle('Saving')
-						.setColor(0xaaff5a)
-						.setDescription('Saved database');
-						message.channel.send(embed);
+						message.channel.send(createEmbed(
+							'Saving',
+							0xaaff5a,
+							'Saved database'
+						));
 					})
 					.catch((e) => {
 						console.error(e);
-						const embed = new Discord.MessageEmbed()
-						.setTitle('Saving')
-						.setColor(0xaaff5a)
-						.setDescription('Fail to save database');
-						message.channel.send(embed);
+						message.channel.send(createEmbed(
+							'Saving',
+							0xaaff5a,
+							'Failed to save database'
+						));
 					})
 				} else {
-					const embed = new Discord.MessageEmbed()
-					.setTitle('Saving')
-					.setColor(0xaaff5a)
-					.setDescription('Not whitelisted');
-					message.channel.send(embed);
+					message.channel.send(createEmbed(
+						'Saving',
+						0xaaff5a,
+						'Not whitelisted'
+					));
 				}
 				break;
 			}
 			case 'set': {
 				if (authorized_tc_setters.includes(message.author.id)) {
 					data[instr[1]].amount = Number(instr[2]);
-					const embed = new Discord.MessageEmbed()
-					.setColor(0xaaff5a)
-					.setDescription(`Set ${message.guild.member.fetch(instr[1]).user.tag}'s thonk coins to ${instr[2]}`);
-					message.channel.send(embed);
+					message.guild.member.fetch(instr[1])
+					.then(m => {
+						message.channel.send(createEmbed(
+							'',
+							0xaaff5a,
+							`Set ${m.user.tag}'s thonk coins to ${instr[2]}`
+						));
+					})
 				} else {
-					const embed = new Discord.MessageEmbed()
-					.setColor(0xaaff5a)
-					.setDescription('Not whitelisted');
-					message.channel.send(embed);
+					message.channel.send(createEmbed(
+						'',
+						0xaaff5a,
+						'Not whitelisted'
+					));
 				}
 				break;
 			}
 			case 'setbank': {
 				if (authorized_tc_setters.includes(message.author.id)) {
 					data[instr[1]].bank = Number(instr[2]);
-					const embed = new Discord.MessageEmbed()
-					.setColor(0xaaff5a)
-					.setDescription(`Set ${message.guild.member.fetch(instr[1]).user.tag}'s thonk coins in the bank to ${instr[2]}`);
-					message.channel.send(embed);
+					message.guild.member.fetch(instr[1])
+					.then(m => {
+						message.channel.send(createEmbed(
+							'',
+							0xaaff5a,
+							`Set ${m.user.tag}'s thonk coins in the bank to ${instr[2]}`
+						));
+					});
 				} else {
-					const embed = new Discord.MessageEmbed()
-					.setColor(0xaaff5a)
-					.setDescription('Not whitelisted');
-					message.channel.send(embed);
+					message.channel.send(createEmbed(
+						'',
+						0xaaff5a,
+						'Not whitelisted'
+					));
 				}
 				break;
 			}
