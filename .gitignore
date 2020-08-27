@@ -1,3 +1,4 @@
 node_modules/
 .env
 up-town-funk.js
+data.json
