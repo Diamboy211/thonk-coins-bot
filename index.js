@@ -29,7 +29,9 @@ set <user-id> <amount>: set user's thonk coin's amount
 setbank <user-id> <amount>: set user's thonk coin's amount in bank
 `
 
+
 function getThonkCoins(id) {
+
 	if (data[id]) {
 		return data[id].amount.toFixed(2);
 	} else {
@@ -66,11 +68,12 @@ function bgupdate() {
 }
 
 function createEmbed(title, color, description) {
-	return new Discord.MessageEmbed.setTitle(title).setColor(color).setDescription(description);
+	return new Discord.MessageEmbed().setTitle(title).setColor(color).setDescription(description);
 }
 
 client.once('ready', () => {
 	console.log('ready');
+	global.mainserver = client.guilds.fetch('702957021229482064');
 });
 
 client.on('message', message => {
@@ -115,11 +118,50 @@ client.on('message', message => {
 							));
 						}
 					} else {
-						message.channel.send(createEmbed(
-							'Thonk coins',
-							0xeeea0f,
-							`<@!${instr[1]}> has ${getThonkCoins(instr[1])} thonk coins`
-						));
+						// fucking spaghetti code
+						instr[1] = instr[1].replace(/<@!|<@/g, '');
+						instr[1] = instr[1].replace(/>/g, '');
+						instr[1] = instr[1].trim();
+						global.mainserver.then(server => server.members.fetch())
+						.then(members => {
+							return members.map(m => m.user.id);
+						})
+						.then(arr => arr.includes(instr[1]) ? 0 : 1)
+						.then(type => {
+							if (type == 0) {
+								message.channel.send(createEmbed(
+									'Thonk coins',
+									0xeeea0f,
+									`<@!${instr[1]}> has ${getThonkCoins(instr[1])} thonk coins`
+								));
+							} else {
+								global.mainserver.then(g => g.members.fetch({query: instr[1]}))
+								.then(m => {
+									m = m.array()[0];
+									message.channel.send(createEmbed(
+										'Thonk coins',
+										0xeeea0f,
+										`<@!${m.user.id}> has ${getThonkCoins(m.user.id)} thonk coins`
+									));
+								})
+								.catch(e => {
+									console.error(e);
+									message.channel.send(createEmbed(
+										'Thonk coins',
+										0xeeea0f,
+										`User does not exist!`
+									));
+								});
+							}
+						})
+						.catch(e => {
+							console.error(e);
+							message.channel.send(createEmbed(
+								'Thonk coins',
+								0xeeea0f,
+								`User does not exist!`
+							));
+						})
 					}
 				} else {;
 					message.channel.send(createEmbed(
