@@ -55,7 +55,14 @@ function depositThonkCoins(id, amount) {
 	}
 }
 
-let prestigeRolesId = ['722867502962704435', '723176166432964639', '723176379234910278', '723176529768611861', '723176518485803130', '723176074212671530']
+let prestigeRolesId = [
+	'722867502962704435',
+	'723176166432964639',
+	'723176379234910278',
+	'723176529768611861',
+	'723176518485803130',
+	'723176074212671530',
+];
 
 /**
  * makes a <tt>GuildMember</tt> in an array wins a giveaway
@@ -71,14 +78,15 @@ function wingamble(users) {
 		winners.push(users[Math.floor(users.length * Math.random())]);
 	}
 	for (let i = 0; i < winners.length; i++) {
-		let prestiges = 0
+		let prestiges = 0;
 		for (let j = 0; j < prestigeRolesId; j++) {
-			if (winners.roles.cache.get(prestigeRolesId[j])) prestiges++
+			if (winners.roles.cache.get(prestigeRolesId[j])) prestiges++;
 		}
 
 		let id = winners[i].id;
 		if (data[id]) {
-			data[id].amount += (6 * i + Math.floor(Math.random() * 3) - 1) * prestiges;
+			data[id].amount +=
+				(6 * i + Math.floor(Math.random() * 3) - 1) * prestiges;
 		} else {
 			data[id] = {
 				amount: 6 * i + Math.floor(Math.random() * 3) - 1,
