@@ -54,6 +54,9 @@ function depositThonkCoins(id, amount) {
 		return `Deposited ${amount.toFixed(2)} thonk coins`;
 	}
 }
+
+let prestigeRolesId = ['722867502962704435', '723176166432964639', '723176379234910278', '723176529768611861', '723176518485803130', '723176074212671530']
+
 /**
  * makes a <tt>GuildMember</tt> in an array wins a giveaway
  * @param {Discord.GuildMember[]} users
@@ -65,25 +68,30 @@ function wingamble(users) {
 	let winners = [];
 	let str = '';
 	for (let i = 0; i < 5; i++) {
-		winners.push(users[Math.floor(users.length*Math.random())])
+		winners.push(users[Math.floor(users.length * Math.random())]);
 	}
 	for (let i = 0; i < winners.length; i++) {
+		let prestiges = 0
+		for (let j = 0; j < prestigeRolesId; j++) {
+			if (winners.roles.cache.get(prestigeRolesId[j])) prestiges++
+		}
+
 		let id = winners[i].id;
 		if (data[id]) {
-			data[id].amount += 6 * i + Math.floor(Math.random()*3) - 1;
+			data[id].amount += (6 * i + Math.floor(Math.random() * 3) - 1) * prestiges;
 		} else {
 			data[id] = {
-				amount: 6 * i + Math.floor(Math.random()*3) - 1,
+				amount: 6 * i + Math.floor(Math.random() * 3) - 1,
 				bank: 0,
-				time: Date.now()
-			}
+				time: Date.now(),
+			};
 		}
 	}
 }
 
 const dayInMillis = 1000 * 60 * 1;
 const weekInMillis = 1000 * 60 * 5;
-let gambleTimestamp = fs.readFile('./gamble-timestamp', 'utf8')
+let gambleTimestamp = fs.readFile('./gamble-timestamp', 'utf8');
 function bgupdate() {
 	for (let i in data.keys) {
 		if (data[i].time + dayInMillis >= Date.now()) {
@@ -100,7 +108,7 @@ function bgupdate() {
 			 */
 			(server) => {
 				server.members.fetch().then((users) => {
-					wingamble(users.array())
+					wingamble(users.array());
 				});
 			}
 		);
