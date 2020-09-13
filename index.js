@@ -194,7 +194,7 @@ client.once('ready', () => {
 		gamble = await server.channels.cache.get('724467569980997634');
 	});
 	client.user.setActivity({
-		name: 'diamboy is testing dont use',
+		name: 'yay bot works now?',
 	});
 });
 
