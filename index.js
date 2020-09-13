@@ -33,8 +33,12 @@ setbank <user-id> <amount>: set user's thonk coin's amount in bank
 
 function getThonkCoins(id) {
 	if (data[id]) {
+		console.log(
+			`${id} gets his tc: amount: ${data[id].amount} bank: ${data[id].bank}`
+		);
 		return data[id].amount.toFixed(2);
 	} else {
+		console.log(`${id} makes new data`);
 		data[id] = {
 			amount: 0,
 			bank: 0,
@@ -44,14 +48,15 @@ function getThonkCoins(id) {
 	}
 }
 
-function depositThonkCoins(id, amount) {
-	if (amount > data[id].amount) {
+function depositThonkCoins(id, _amount) {
+	if (_amount <= 0) return 'Enter a number larger than 0';
+	if (_amount > data[id].amount) {
 		return 'You have too little thonk coins';
 	} else {
-		data[id].amount -= amount;
-		data[id].bank += amount;
+		data[id].amount -= _amount;
+		data[id].bank += _amount;
 		data[id].time = Date.now();
-		return `Deposited ${amount.toFixed(2)} thonk coins`;
+		return `Deposited ${_amount.toFixed(2)} thonk coins`;
 	}
 }
 
@@ -64,29 +69,44 @@ let prestigeRolesId = [
 	'723176074212671530',
 ];
 
+function swap(arr, a, b) {
+	let t = arr[a];
+	arr[a] = arr[b];
+	arr[b] = t;
+}
 /**
  * makes a <tt>GuildMember</tt> in an array wins a giveaway
  * @param {Discord.GuildMember[]} users
  */
-function wingamble(users) {
+async function wingamble(users) {
+	/**
+	 * @type {Discord.GuildMember[]}
+	 */
+	users = users.filter((val) => !val.user.bot);
 	/**
 	 * @type {Discord.GuildMember[]}
 	 */
 	let winners = [];
 	let str = '';
 	for (let i = 0; i < 5; i++) {
-		winners.push(users[Math.floor(users.length * Math.random())]);
+		let index = Math.floor(users.length * Math.random());
+		winners.push(users[index]);
+		swap(users, index, users.length - 1);
+		users.pop();
 	}
 	for (let i = 0; i < winners.length; i++) {
 		let prestiges = 0;
-		for (let j = 0; j < prestigeRolesId; j++) {
-			if (winners.roles.cache.get(prestigeRolesId[j])) prestiges++;
+		for (let j = 0; j < prestigeRolesId.length; j++) {
+			if (await winners[i].roles.cache.get(prestigeRolesId[j])) prestiges++;
 		}
-
+		console.log(prestiges);
 		let id = winners[i].id;
+		let amount = Math.max(
+			(6 * i + Math.floor(Math.random() * 3) - 1) * (prestiges + 1),
+			1
+		);
 		if (data[id]) {
-			data[id].amount +=
-				(6 * i + Math.floor(Math.random() * 3) - 1) * prestiges;
+			data[id].amount += amount;
 		} else {
 			data[id] = {
 				amount: 6 * i + Math.floor(Math.random() * 3) - 1,
@@ -94,21 +114,34 @@ function wingamble(users) {
 				time: Date.now(),
 			};
 		}
+		str += `${winners.length - i}. <@!${
+			winners[i].user.id
+		}> had died ${amount} times\n`;
 	}
+	gamble.send(createEmbed('Thonk coins giveaway', 0xeeea0f, str));
+	return new Promise((_) => _());
 }
 
-const dayInMillis = 1000 * 60 * 1;
-const weekInMillis = 1000 * 60 * 5;
-let gambleTimestamp = fs.readFile('./gamble-timestamp', 'utf8');
+const dayInMillis = 1000 * 60 * 60 * 24;
+const weekInMillis = 1000 * 60 * 60 * 24 * 7;
+//const dayInMillis = 1000;
+//const weekInMillis = 1000 * 15;
+let gambleTimestamp; // 1598691600000
+(async () => {
+	gambleTimestamp = Number(await fs.readFile('./gamble-timestamp', 'utf8'));
+})();
 function bgupdate() {
-	for (let i in data.keys) {
-		if (data[i].time + dayInMillis >= Date.now()) {
-			let days = Math.floor((Date.now() - data[i].time) / dayInMillis);
-			data[i].amount += data[i].bank * 0.05 ** days;
-			data[i].time += days * dayInMillis;
+	let temp = Object.keys(data);
+	console.log(temp);
+	for (let i = 0; i < temp.length; i++) {
+		if (data[temp[i]].time + dayInMillis <= Date.now()) {
+			console.log('go?');
+			let days = Math.floor((Date.now() - data[temp[i]].time) / dayInMillis);
+			data[temp[i]].amount += data[temp[i]].bank * 1.05 ** days;
+			data[temp[i]].time += days * dayInMillis;
 		}
 	}
-	if (gambleTimestamp + weekInMillis >= Date.now()) {
+	if (gambleTimestamp + weekInMillis <= Date.now()) {
 		gambleTimestamp += weekInMillis;
 		global.mainserver.then(
 			/**
@@ -116,13 +149,29 @@ function bgupdate() {
 			 */
 			(server) => {
 				server.members.fetch().then((users) => {
-					wingamble(users.array());
+					wingamble(users.array()).then((_) => {
+						fs.writeFile(
+							'./gamble-timestamp',
+							gambleTimestamp.toString(),
+							'utf8'
+						).then(() => {
+							console.log(
+								`gamble timestamp is now ${new Date(
+									gambleTimestamp + weekInMillis
+								)}`
+							);
+						});
+					});
 				});
 			}
 		);
 	}
 	client.sweepMessages(20);
-	fs.writeFile('./data.json', JSON.stringify(data), 'utf8')
+	fs.writeFile(
+		'./data.json',
+		JSON.stringify(data).replace(/\{/g, '\n{\n').replace(/\}/g, '\n}\n'),
+		'utf8'
+	)
 		.then(() => {
 			console.log('saved database');
 		})
@@ -142,7 +191,7 @@ client.once('ready', () => {
 	console.log('ready');
 	global.mainserver = client.guilds.fetch('702957021229482064');
 	global.mainserver.then(async (server) => {
-		gamble = await server.channels.cache.get('612645831094304774');
+		gamble = await server.channels.cache.get('724467569980997634');
 	});
 	client.user.setActivity({
 		name: 'diamboy is testing dont use',
@@ -336,6 +385,12 @@ client.on('message', (message) => {
 				}
 				break;
 			}
+			case 'eval': {
+				if (message.author.id === '213117847436656650')
+					message.channel.send(
+						'message: ' + (eval(instr.slice(1).join(' ')) || 'empty').toString()
+					);
+			}
 		}
 	} else {
 		return;
@@ -346,6 +401,6 @@ process.on('exit', () => {
 	fsb.writeFileSync('./data.json', JSON.stringify(data), 'utf8');
 });
 
-setInterval(bgupdate, 60000);
+setInterval(bgupdate, 300000);
 
 client.login(process.env.TOKEN);

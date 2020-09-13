@@ -1,15 +1,16 @@
 {
-  "name": "prototype-thonk-coin-bot",
-  "version": "1.0.0",
-  "description": "discord bot for thonk coin storing",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Diamboy",
-  "license": "MIT",
-  "dependencies": {
-    "discord.js": "^12.3.1",
-    "dotenv": "^8.2.0"
-  }
+	"name": "prototype-thonk-coin-bot",
+	"version": "1.0.0",
+	"description": "discord bot for thonk coin storing",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node ."
+	},
+	"author": "Diamboy",
+	"license": "MIT",
+	"dependencies": {
+		"discord.js": "^12.3.1",
+		"dotenv": "^8.2.0"
+	}
 }
