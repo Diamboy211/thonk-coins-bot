@@ -116,7 +116,7 @@ async function wingamble(users) {
 		}
 		str += `${winners.length - i}. <@!${
 			winners[i].user.id
-		}> had died ${amount} times\n`;
+		}> had won ${amount} thonk coin${(amount == 1) ? '' : 's'}!\n`;
 	}
 	gamble.send(createEmbed('Thonk coins giveaway', 0xeeea0f, str));
 	return new Promise((_) => _());
@@ -137,7 +137,7 @@ function bgupdate() {
 		if (data[temp[i]].time + dayInMillis <= Date.now()) {
 			console.log('go?');
 			let days = Math.floor((Date.now() - data[temp[i]].time) / dayInMillis);
-			data[temp[i]].amount += data[temp[i]].bank * 1.05 ** days;
+			data[temp[i]].amount += data[temp[i]].bank * 0.05 * days;
 			data[temp[i]].time += days * dayInMillis;
 		}
 	}
@@ -191,7 +191,7 @@ client.once('ready', () => {
 	console.log('ready');
 	global.mainserver = client.guilds.fetch('702957021229482064');
 	global.mainserver.then(async (server) => {
-		gamble = await server.channels.cache.get('724467569980997634');
+		gamble = await server.channels.cache.get('736202993724162099');
 	});
 	client.user.setActivity({
 		name: 'yay bot works now?',
